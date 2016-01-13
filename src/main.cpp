@@ -27,7 +27,7 @@ inline void sendData(uint8_t num, uint16_t val)
 	crc ^= ((uint8_t*) &val)[1];
 
 	cli();
-	port("$RC");
+	port->print("$RC");
 	port->putch(num);
 	port->WriteCOM(2, (unsigned char*) &val);
 	port->putch(crc);
@@ -50,7 +50,7 @@ ISR(INT0_vect)
 	flag = 0;
 }
 
-ISR(USART_TXC_vect)
+ISR(USART_TX_vect)
 {
 	port->tx_byte_int();
 }
@@ -198,7 +198,7 @@ int main()
 {
 	init();
 
-	UART outPort(UDR, 115200);
+	UART outPort(UDR0, 115200);
 	port = &outPort;
 
 	while (1)
