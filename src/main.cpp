@@ -45,7 +45,7 @@ ISR(INT0_vect)
 	if ((TIM_VAL > MAX_PULSE) || (flag))
 		counter = 0;
 	else
-		sendData(counter, TIM_VAL);
+		sendData(counter++, TIM_VAL);
 	TCNT1 = 0;
 	flag = 0;
 }
