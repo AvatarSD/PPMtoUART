@@ -11,7 +11,7 @@
 
 #define MAX_PULSE 3000
 
-#define TIM_VAL (TCNT1/2)
+#define TIM_VAL(x) (x/2)
 UART * port;
 bool flag = 0;
 
@@ -26,12 +26,10 @@ inline void sendData(uint8_t num, uint16_t val)
 	crc ^= ((uint8_t*) &val)[0];
 	crc ^= ((uint8_t*) &val)[1];
 
-	cli();
 	port->print("$RC");
 	port->putch(num);
 	port->WriteCOM(2, (unsigned char*) &val);
 	port->putch(crc);
-	sei();
 }
 
 ISR(TIMER1_OVF_vect)
@@ -41,12 +39,18 @@ ISR(TIMER1_OVF_vect)
 
 ISR(INT0_vect)
 {
+	/****************/
+	uint16_t timCurr = TCNT1;
+	TCNT1 = 0;
+	/****************/
+
+	timCurr = TIM_VAL(timCurr);
+
 	static uint8_t counter = 0;
-	if ((TIM_VAL > MAX_PULSE) || (flag))
+	if ((timCurr > MAX_PULSE) || (flag))
 		counter = 0;
 	else
-		sendData(counter++, TIM_VAL);
-	TCNT1 = 0;
+		sendData(counter++, timCurr);
 	flag = 0;
 }
 
